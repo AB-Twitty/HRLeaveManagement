@@ -14,11 +14,7 @@ namespace HRLeaveManagement.Application.DTOs.LeaveType.Validators
 
             RuleFor(p => p.Id)
                 .NotNull().WithMessage("{PropertyName} must be present.")
-                .GreaterThan(0)
-                .MustAsync(async (id, token) =>
-                {
-                    return !(await _leaveTypeRepository.Exists(id));
-                }).WithMessage("{PropertyName} does not exist.");
+                .GreaterThan(0);
         }
     }
 }
