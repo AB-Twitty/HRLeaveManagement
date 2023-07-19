@@ -21,16 +21,23 @@ namespace HRLeaveManagement.MVC.Services
 			_mapper = mapper;
 		}
 
-		public async Task<LeaveTypeVM> GetLeaveType(int id) =>
-			_mapper.Map<LeaveTypeVM>(await _client.LeaveTypesGETAsync(id));
+		public async Task<LeaveTypeVM> GetLeaveType(int id)
+		{
+			AddBearerTooken();
+			return _mapper.Map<LeaveTypeVM>(await _client.LeaveTypesGETAsync(id));
 
-		public async Task<List<LeaveTypeVM>> GetLeaveTypes() =>
-			_mapper.Map<List<LeaveTypeVM>>(await _client.LeaveTypesAllAsync());
+		}
 
+		public async Task<List<LeaveTypeVM>> GetLeaveTypes()
+		{
+			AddBearerTooken();
+			return _mapper.Map<List<LeaveTypeVM>>(await _client.LeaveTypesAllAsync());
+		}
 		public async Task<Response<int>> CreateLeaveType(CreateLeaveTypeVM leaveType)
 		{
 			try
 			{
+				AddBearerTooken();
 				var apiResponse = await _client.LeaveTypesPOSTAsync(_mapper.Map<CreateLeaveTypeDto>(leaveType));
 				if (apiResponse.Success)
 					return new Response<int>
@@ -56,6 +63,7 @@ namespace HRLeaveManagement.MVC.Services
 		{
 			try
 			{
+				AddBearerTooken();
 				await _client.LeaveTypesDELETEAsync(leaveType.Id);
 				return new Response<int> { Success = true };
 			}
@@ -69,6 +77,7 @@ namespace HRLeaveManagement.MVC.Services
 		{
 			try
 			{
+				AddBearerTooken();
 				await _client.LeaveTypesPUTAsync(leaveType.Id.ToString(), _mapper.Map<LeaveTypeDto>(leaveType));
 				return new Response<int> { Success = true };
 			}

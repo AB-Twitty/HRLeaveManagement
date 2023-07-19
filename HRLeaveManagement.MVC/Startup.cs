@@ -1,17 +1,14 @@
 using HRLeaveManagement.MVC.Contracts;
 using HRLeaveManagement.MVC.Services;
 using HRLeaveManagement.MVC.Services.Base;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace HRLeaveManagement.MVC
 {
@@ -27,8 +24,18 @@ namespace HRLeaveManagement.MVC
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
+			services.AddHttpContextAccessor();
+
+			services.Configure<CookiePolicyOptions>(options =>
+				options.MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.None
+			);
+
+			services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+
 			services.AddHttpClient<IClient, Client>(cl => cl.BaseAddress = new Uri("http://localhost:11597"));
 			services.AddAutoMapper(Assembly.GetExecutingAssembly());
+
+			services.AddTransient<IAuthenticationService, AuthenticationService>();
 			services.AddScoped<ILeaveTypeService, LeaveTypeService>();
 			services.AddSingleton<ILocalStorageService, LocalStorageService>();
 			services.AddControllersWithViews();
@@ -47,6 +54,10 @@ namespace HRLeaveManagement.MVC
 				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 				app.UseHsts();
 			}
+
+			app.UseCookiePolicy();
+			app.UseAuthentication();
+
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
 

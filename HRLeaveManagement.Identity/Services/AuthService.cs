@@ -52,9 +52,36 @@ namespace HRLeaveManagement.Identity.Services
 			return response;
 		}
 
-		public Task<RegisterResponse> Register(RegisterRequest request)
+		public async Task<RegisterResponse> Register(RegisterRequest request)
 		{
-			throw new System.NotImplementedException();
+			var existingUserName = await _userManager.FindByNameAsync(request.UserName);
+
+			if (existingUserName != null)
+				throw new Exception($"Username {request.UserName} already exists.");
+
+			var existingEmail = await _userManager.FindByEmailAsync(request.Email);
+
+			if (existingEmail != null)
+				throw new Exception($"Email {request.Email} already exists");
+
+			var user = new ApplicationUser
+			{
+				FirstName = request.FirstName,
+				LastName = request.LastName,
+				Email = request.Email,
+				UserName = request.UserName,
+				EmailConfirmed = true
+			};
+
+			var result = await _userManager.CreateAsync(user, request.Password);
+
+			if (result.Succeeded)
+			{
+				await _userManager.AddToRoleAsync(user, "Employee");
+				return new RegisterResponse { Id = user.Id };
+			}
+
+			throw new Exception($"{result.Errors}");
 		}
 
 		private async Task<JwtSecurityToken> GenerateToken(ApplicationUser user)
