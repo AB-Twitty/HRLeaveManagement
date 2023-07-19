@@ -2,6 +2,6 @@
 {
 	public class RegisterResponse
 	{
-        public int UserId { get; set; }
+        public string Id { get; set; }
     }
 }
